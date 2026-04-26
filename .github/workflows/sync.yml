@@ -15,17 +15,37 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Sync formula with latest release
         run: ./scripts/sync_cliproxyapi.sh
 
-      - name: Create pull request when changed
-        uses: peter-evans/create-pull-request@v6
-        with:
-          commit-message: "chore: bump cliproxyapi formula"
-          title: "chore: bump cliproxyapi formula"
-          body: |
-            Automated update from latest GitHub release.
-          branch: chore/bump-cliproxyapi
-          delete-branch: true
-          labels: automated, dependencies
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Extract version
+        id: version
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          ver="$(sed -n 's|^  url ".*refs/tags/v\([0-9.]\+\)\.tar\.gz"$|\1|p' Formula/cliproxyapi.rb | head -n1)"
+          if [ -z "$ver" ]; then
+            echo "Failed to extract version from Formula/cliproxyapi.rb" >&2
+            exit 1
+          fi
+          echo "value=$ver" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/cliproxyapi.rb
+          git commit -m "chore: bump cliproxyapi to v${{ steps.version.outputs.value }}"
+          git push origin HEAD:main

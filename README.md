@@ -35,7 +35,7 @@ Workflow file:
 Behavior:
 - runs every 6 hours and on manual trigger
 - updates formula via script
-- automatically opens/updates PR when there is a change
+- automatically commits and pushes to `main` when there is a change
 
 ## Repository setup checklist
 
@@ -43,4 +43,4 @@ Behavior:
 2. Push this project to `main`.
 3. Enable GitHub Actions.
 4. (Optional) Protect `main` and require PR review.
-5. Merge PRs created by workflow to publish updates.
+5. Ensure the workflow has permission to push to `main` (branch protection must allow it).
