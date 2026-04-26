@@ -1,0 +1,31 @@
+name: Sync CLIProxyAPI Formula
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sync formula with latest release
+        run: ./scripts/sync_cliproxyapi.sh
+
+      - name: Create pull request when changed
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore: bump cliproxyapi formula"
+          title: "chore: bump cliproxyapi formula"
+          body: |
+            Automated update from latest GitHub release.
+          branch: chore/bump-cliproxyapi
+          delete-branch: true
+          labels: automated, dependencies
