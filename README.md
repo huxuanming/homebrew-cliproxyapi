@@ -5,7 +5,7 @@ Homebrew tap for `cliproxyapi`, with automated sync to the latest GitHub release
 ## Install
 
 ```bash
-brew tap hu/cliproxyapi
+brew tap huxuanming/cliproxyapi
 brew install cliproxyapi
 ```
 
